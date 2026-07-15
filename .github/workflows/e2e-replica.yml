@@ -1,0 +1,44 @@
+name: E2E Replica (guard test)
+
+on:
+  push:
+    branches: [master, main]
+  pull_request:
+    branches: ['**']
+  workflow_dispatch:
+
+# Mirrors the real workflow: read-only default, but the job runs a script
+# from the checked-out tree. In the real file an App token lives here too;
+# we use a DUMMY secret so nothing real is ever exposed.
+permissions:
+  contents: read
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    # THE GUARD UNDER TEST — identical to gha-e2e-tests.yaml
+    if: github.event_name != 'pull_request' ||
+        github.event.pull_request.head.repo.id == github.repository_id
+    steps:
+      - name: Log the context (proof of what the guard saw)
+        run: |
+          echo "event_name        = ${{ github.event_name }}"
+          echo "actor             = ${{ github.actor }}"
+          echo "head.repo.id      = ${{ github.event.pull_request.head.repo.id }}"
+          echo "repository_id     = ${{ github.repository_id }}"
+          echo "head.ref          = ${{ github.head_ref }}"
+          echo "head.sha          = ${{ github.event.pull_request.head.sha }}"
+
+      # Mirrors the real `ref: ${{ github.head_ref }}` — mutable ref checkout
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+
+      # Stand-in for the dummy "privileged" credential that would be in scope
+      - name: Run the "e2e" script from the checked-out tree
+        env:
+          FAKE_APP_TOKEN: ${{ secrets.FAKE_APP_TOKEN }}   # a dummy value you set
+        run: |
+          chmod +x ./hack/e2e-test.sh || true
+          ./hack/e2e-test.sh default-setup
