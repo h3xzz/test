@@ -1,4 +1,4 @@
 #!/usr/bin/env bash
 set -euo pipefail
 echo "::notice title=E2E::Running TRUSTED e2e script from default branch"
-echo "This is the legitimate script. No payload."
+echo "This is the yoyoyoyoyoyo."
