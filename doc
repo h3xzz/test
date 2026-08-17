@@ -1,0 +1,23 @@
+Project documentation
+
+This repository is a minimal test fixture used to exercise GitHub Actions guard behavior around pull request execution from forked repositories.
+
+Overview
+- The workflow in `.github/workflows/e2e-replica.yml` mirrors a guarded e2e workflow.
+- The script in `hack/e2e-test.sh` is the trusted command that is executed from the checked-out tree.
+- The intent is to validate that the workflow only runs trusted code from the default branch and does not blindly trust mutable pull request refs.
+
+Files
+- `.github/workflows/e2e-replica.yml` — example workflow with a repository guard check.
+- `hack/e2e-test.sh` — sample script intentionally marked as the approved e2e entry point.
+- `README.md` — high-level project overview.
+
+Quick usage
+```bash
+chmod +x ./hack/e2e-test.sh
+./hack/e2e-test.sh default-setup
+```
+
+Notes
+- This repo is intentionally small and focused on demonstrating guard logic.
+- It is not a production application, but a reproducible security test setup.
